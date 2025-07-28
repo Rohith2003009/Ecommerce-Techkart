@@ -1,0 +1,203 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Cart - TechKart</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f2f2f2;
+      margin: 0;
+      padding: 0;
+    }
+
+    .navbar {
+      background-color: #28a745;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: white;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      margin-left: 15px;
+      font-weight: bold;
+    }
+
+    .navbar a:hover {
+      text-decoration: underline;
+    }
+
+    .cart-container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding: 15px 0;
+    }
+
+    .cart-item-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .cart-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+
+    .cart-item p {
+      margin: 0;
+      color: #555;
+    }
+
+    .total {
+      text-align: right;
+      font-weight: bold;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .warning-msg {
+      color: red;
+      text-align: right;
+      margin-top: 10px;
+    }
+
+    .place-order-btn {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .place-order-btn:hover {
+      background-color: #0056b3;
+    }
+
+    .place-order-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .delete-form button {
+      background-color: #dc3545;
+      color: white;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .delete-form button:hover {
+      background-color: #c82333;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <div><a href="{% url 'home' %}">🏠 TechKart</a></div>
+    <div>
+      <a href="{% url 'home' %}">Home</a>
+      {% if user.is_authenticated %}
+        <span style="margin-left: 15px;">Welcome, {{ user.username }}</span>
+        <a href="{% url 'logout' %}">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}">Login</a>
+        <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="cart-container">
+    <h2>Your Cart</h2>
+
+    {% if cart_items %}
+      {% for item in cart_items %}
+        <div class="cart-item">
+          <div class="cart-item-left">
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+            <p>{{ item.product.name }}</p>
+          </div>
+
+          <div class="quantity-controls">
+            <form method="post" action="{% url 'update_cart_quantity' item.id %}">
+              {% csrf_token %}
+              <button type="submit" name="action" value="decrease" {% if item.quantity <= 1 %}disabled{% endif %}>−</button>
+              <span>{{ item.quantity }}</span>
+              <button type="submit" name="action" value="increase" {% if item.quantity >= 10 %}disabled{% endif %}>+</button>
+            </form>
+          </div>
+
+          <p>₹{{ item.product.price|floatformat:2 }}</p>
+
+          <form method="post" action="{% url 'delete_cart_item' item.id %}" class="delete-form">
+            {% csrf_token %}
+            <button type="submit">Delete</button>
+          </form>
+        </div>
+      {% endfor %}
+
+      <div class="total">
+        Total: ₹{{ total|floatformat:2 }}
+      </div>
+
+      {% if total < 100 %}
+        <p class="warning-msg">Minimum order value is ₹100 to place an order.</p>
+      {% elif total > 10000 %}
+        <p class="warning-msg">Maximum order value is ₹1,00,000.</p>
+      {% endif %}
+
+      <form action="{% url 'order_success' %}" method="post" style="text-align: right; margin-top: 20px;">
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="place-order-btn"
+          {% if total < 100 or total > 100000 %}disabled{% endif %}
+        >
+          Place Order (COD)
+        </button>
+        
+      </form>
+    {% else %}
+      <p>Your cart is empty.</p>
+    {% endif %}
+  </div>
+
+</body>
+</html>

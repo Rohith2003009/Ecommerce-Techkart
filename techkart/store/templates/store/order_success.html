@@ -1,0 +1,48 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Successful</title>
+  <style>
+  body {
+  font-family: Arial, sans-serif;
+  background-color: #f1f1f1;
+  text-align: center;
+  padding-top: 100px;
+}
+
+.message {
+  font-size: 24px;
+  color: green;
+}
+
+.message h1 {
+  font-size: 36px;
+}
+
+.message a {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: rgb(0, 36, 128);
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.message a:hover {
+  background-color: darkgreen;
+}
+</style>
+</head>
+<body>
+  <div class="message">
+    <h1>🎉 Thank you for your order!</h1>
+    <p>Your COD order has been successfully placed.</p>
+    <a href="/">Return to Home</a>
+  </div>
+</body>
+</html>
